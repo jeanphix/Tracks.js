@@ -1,6 +1,13 @@
 var tracks = (function() {
     var tracks = {};
 
+    /**
+     * Returns time as a human readable string.
+     *
+     * @param integer time The time to convert
+     * @param boolean withHours Should add hours to output
+     * @return string The time string
+     */
     tracks.humanizeTime = function(time, withHours) {
         var h, m, s;
         h = Math.floor( time / 3600 );
@@ -12,22 +19,48 @@ var tracks = (function() {
         return withHours ? h + ':' + m + ':' + s : m + ':' + s;
     };
 
+    /**
+     * Returns an average.
+     *
+     * @param float value The value
+     * @param float total The max value
+     * @param integer decimal The decimal
+     * @return integer The average
+     */
     tracks.toAverage = function(value, total, decimal) {
         var r = Math.pow( 10, decimal || 0 );
         return Math.round( ( ( value * 100 ) / total ) * r ) / r;
     };
 
+    /**
+     * Returns value from average.
+     *
+     * @param float average The average
+     * @param float total The max value
+     * @param integer decimal The decimal
+     * @return float The value
+     */
     tracks.fromAverage = function(average, total, decimal) {
         var r = Math.pow( 10, decimal || 0 );
         return  Math.round( ( ( total / 100 ) * average ) * r ) / r;
     };
 
-
+    /**
+     * Represents a media (audio / video) track.
+     *
+     * @param HTMLElement el The HTML media element
+     */
     var Track = (function() {
         function Track(el) {
             this.el = el;
         }
 
+        /**
+         * Gets or sets the value for given attribute name.
+         *
+         * @param string attr The attribute name
+         * @param string value The value
+         */
         Track.prototype.attr = function(attr, val) {
             if (val) {
                 this.el[attr] = val;
@@ -37,22 +70,45 @@ var tracks = (function() {
             }
         };
 
+        /**
+         * Sets the volume.
+         *
+         * @param integer volume The volume (0 - 100)
+         * @return Track
+         */
         Track.prototype.setVolume = function(volume) {
             this.volume = parseFloat(volume);
             this.el.volume = this.volume / 100;
             return this;
         };
 
+        /**
+         * Starts playing the media.
+         *
+         * @return Track
+         */
         Track.prototype.play = function() {
             this.el.play();
             return this;
         };
 
+        /**
+         * Stops playing the media.
+         *
+         * @return Track
+         */
         Track.prototype.pause = function() {
             this.el.pause();
             return this;
         };
 
+        /**
+         * Adds listener for given event.
+         *
+         * @param string handler The event type
+         * @param callable fn The callback
+         * @param object bind The object to bind
+         */
         Track.prototype.on = function(handler, fn, bind) {
             var bind = bind ? bind : this;
             this.el.addEventListener(handler, function(e) {
@@ -65,7 +121,11 @@ var tracks = (function() {
 
     tracks.Track = Track;
 
-
+    /**
+     * Represents a media group.
+     *
+     * @param Array els An array of HTML media elements
+     */
     var Tracks = (function() {
         var states = {
             HAVE_NOTHING: 0,
@@ -95,6 +155,9 @@ var tracks = (function() {
             return this;
         }
 
+        /**
+         * Sets the longest track and duration when metadatas have been loaded.
+         */
         Tracks.prototype._init = function() {
             this.longest = this.tracks[0];
             this.each(this.tracks, function(track) {
@@ -106,6 +169,9 @@ var tracks = (function() {
             this._initTimeEvents();
         };
 
+        /**
+         * Initializes main event listeners.
+         */
         Tracks.prototype._initEvents = function() {
             this.on('loadedmetadata', function() {
                 this._init();
@@ -115,6 +181,9 @@ var tracks = (function() {
             });
         };
 
+        /**
+         * Initializes time related events.
+         */
         Tracks.prototype._initTimeEvents = function() {
             var events = ['timeupdate', 'ended', 'pause', 'play', 'playing'];
             this.each(events, function(type) {
@@ -124,12 +193,20 @@ var tracks = (function() {
             });
         };
 
+        /**
+         * Adds a Track.
+         *
+         * @param Track track The track
+         */
         Tracks.prototype.addTrack = function(track) {
             this._initTrackStateEvents(track);
             this.tracks.push(track);
             return this;
         };
 
+        /**
+         * Initializes the state change events.
+         */
         Tracks.prototype._initTrackStateEvents = function(track) {
             this.each(stateEvents, function(status, type) {
                 var _this = this;
@@ -143,6 +220,12 @@ var tracks = (function() {
             });
         };
 
+        /**
+         * Iterates over objects and arrays.
+         *
+         * @param object/Array array The object to iterate on
+         * @param callable fn The iteration
+         */
         Tracks.prototype.each = function(array, fn) {
             if (typeof(array.length) == 'undefined') {
                 for (var attr in array) {
@@ -155,18 +238,39 @@ var tracks = (function() {
             }
         };
 
+        /**
+         * Gets the position as average.
+         *
+         * @param integer decimal The decimal
+         * @return float
+         */
         Tracks.prototype.getAverage = function(decimal) {
             return tracks.toAverage(this.currentTime, this.duration, decimal);
         };
 
+        /**
+         * Returns time as a human readable string.
+         *
+         * @return string
+         */
         Tracks.prototype.getHumanizedTime = function(withHours) {
             return tracks.humanizeTime(this.currentTime, withHours);
         };
 
+        /**
+         * Returns duration as a human readable string.
+         *
+         * @return string
+         */
         Tracks.prototype.getHumanizedDuration = function(withHours) {
             return tracks.humanizeTime(this.duration, withHours);
         };
 
+        /**
+         * Gets the ready state.
+         *
+         * @return integer
+         */
         Tracks.prototype.getReadyState = function() {
             var state = states.HAVE_ENOUGH_DATA;
             this.each(this.tracks, function(track) {
@@ -175,10 +279,20 @@ var tracks = (function() {
             return state;
         };
 
+        /**
+         * Cheks if tracks can be played.
+         *
+         * @return boolean
+         */
         Tracks.prototype.canPlay = function() {
             return (this.getReadyState() >= states.HAVE_FUTURE_DATA);
         };
 
+        /**
+         * Starts playing the tracks.
+         *
+         * @return Tracks
+         */
         Tracks.prototype.play = function() {
             if (this.canPlay()) {
                 this.setTime(this.currentTime);
@@ -191,6 +305,11 @@ var tracks = (function() {
             }
         };
 
+        /**
+         * Stops playing the tracks.
+         *
+         * @return tracks
+         */
         Tracks.prototype.pause = function() {
             this.applyAll(function() {
                 this.pause();
@@ -198,19 +317,40 @@ var tracks = (function() {
             return this;
         };
 
+        /**
+         * Sets player position.
+         *
+         * @param integer time The time
+         * @return Tracks
+         */
         Tracks.prototype.setTime = function(time) {
             this.currentTime = time;
             this.applyAll(function() {
                 this.time = time;
             });
+            return this;
         };
 
+        /**
+         * Applies a callble to all tracks.
+         *
+         * @param callable fn The callbale to apply
+         * @param args Array The arguments
+         * @return tracks
+         */
         Tracks.prototype.applyAll = function(fn, args) {
             this.each(this.tracks, function(track) {
                 fn.apply(track, args);
             });
+            return this;
         };
 
+        /**
+         * Adds a listener for given event.
+         *
+         * @param string type The event type
+         * @param callable fn The Callable
+         */
         Tracks.prototype.on = function(type, fn) {
             var _this = this;
             this._el.addEventListener(type, function(e) {
@@ -218,6 +358,11 @@ var tracks = (function() {
             });
         };
 
+        /**
+         * Triggers an event.
+         *
+         * @param string type The event type
+         */
         Tracks.prototype.trigger = function(type) {
             var e = document.createEvent('HTMLEvents');
             e.initEvent( type, false, true );
