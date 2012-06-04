@@ -24,11 +24,11 @@ var tracks = (function() {
      *
      * @param float value The value
      * @param float total The max value
-     * @param integer decimal The decimal
+     * @param integer precision The precision
      * @return integer The average
      */
-    tracks.toAverage = function(value, total, decimal) {
-        var r = Math.pow( 10, decimal || 0 );
+    tracks.toAverage = function(value, total, precision) {
+        var r = Math.pow( 10, precision || 0 );
         return Math.round( ( ( value * 100 ) / total ) * r ) / r;
     };
 
@@ -37,11 +37,11 @@ var tracks = (function() {
      *
      * @param float average The average
      * @param float total The max value
-     * @param integer decimal The decimal
+     * @param integer precision The precision
      * @return float The value
      */
-    tracks.fromAverage = function(average, total, decimal) {
-        var r = Math.pow( 10, decimal || 0 );
+    tracks.fromAverage = function(average, total, precision) {
+        var r = Math.pow( 10, precision || 0 );
         return  Math.round( ( ( total / 100 ) * average ) * r ) / r;
     };
 
