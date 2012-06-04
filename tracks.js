@@ -53,6 +53,7 @@ var tracks = (function() {
     var Track = (function() {
         function Track(el) {
             this.el = el;
+            return this;
         }
 
         /**
