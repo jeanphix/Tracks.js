@@ -23,11 +23,6 @@ var helpers = (function() {
 
 
 suite('tracks', function() {
-
-    setup(function(done) {
-        done();
-    });
-
     suite('#humanizeTime()', function() {
         test('should return a 4 digit fomated string', function() {
             expect(tracks.humanizeTime(184)).to.be("03:04");
@@ -64,8 +59,7 @@ suite('tracks', function() {
     });
 
     suite('Track', function() {
-        var el;
-        var t;
+        var el, t;
 
         setup(function() {
             el = helpers.audio([
@@ -83,6 +77,18 @@ suite('tracks', function() {
             test('should get `el` attibute', function() {
                 t.attr('rel', 'test');
                 expect(t.attr('rel')).to.be('test');
+            });
+        });
+
+        suite('#play()', function() {
+            test('should be playable when ready', function(done) {
+                t.on('canplay', function() {
+                    t.play();
+                });
+                t.on('play', function() {
+                    t.pause();
+                    done();
+                });
             });
         });
 
@@ -115,6 +121,56 @@ suite('tracks', function() {
                     done();
                 });
             });
+        });
+
+        teardown(function() {
+            delete el, t;
+        });
+    });
+
+    suite('Tracks', function() {
+        var els, t;
+
+        setup(function(done) {
+            els = [
+                helpers.audio([
+                    helpers.source('sounds/craw.ogg', 'audio/ogg'),
+                    helpers.source('sounds/craw.mp3', 'audio/mp3')
+                ]),
+                helpers.audio([
+                    helpers.source('sounds/seagull.ogg', 'audio/ogg'),
+                    helpers.source('sounds/seagull.mp3', 'audio/mp3')
+                ])
+            ];
+            t = new tracks.Tracks(els);
+            done();
+        });
+
+        suite('#on()', function() {
+            test('loadedmetadata should be fired up', function(done) {
+                t.on('loadedmetadata', function() {
+                    done();
+                });
+            });
+            test('loadeddata should be fired up', function(done) {
+                t.on('loadeddata', function() {
+                    done();
+                });
+            });
+            test('canplay should be fired up', function(done) {
+                t.on('canplay', function() {
+                    done();
+                });
+            });
+            test('canplaythrough should be fired up', function(done) {
+                t.on('canplaythrough', function() {
+                    done();
+                });
+            });
+        });
+
+        teardown(function() {
+            delete els, t;
         });
     });
 });
