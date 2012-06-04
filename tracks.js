@@ -211,12 +211,10 @@ var tracks = (function() {
         Tracks.prototype._initTrackStateEvents = function(track) {
             this.each(stateEvents, function(status, type) {
                 var _this = this;
-                this.applyAll(function() {
-                    this.on(type, function() {
-                        if (_this.getReadyState() >= status) {
-                            _this.trigger(type);
-                        }
-                    });
+                track.on(type, function() {
+                    if (_this.getReadyState() >= status) {
+                        _this.trigger(type);
+                    }
                 });
             });
         };
