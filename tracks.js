@@ -227,6 +227,7 @@ var tracks = (function() {
                     fn.apply(this, [array[i], i]);
                 }
             }
+            return this;
         };
 
         /**
@@ -348,6 +349,7 @@ var tracks = (function() {
             var e = document.createEvent('HTMLEvents');
             e.initEvent( type, false, true );
             this._el.dispatchEvent(e);
+            return this;
         };
 
         /**
