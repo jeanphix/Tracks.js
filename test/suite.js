@@ -10,6 +10,7 @@ var helpers = (function() {
 
     helpers.audio = function(sources) {
         var el = document.createElement('audio');
+        el.setAttribute('preload', 'none');
         if (sources) {
             for (var i = 0, l = sources.length; i < l; i++) {
                 el.appendChild(sources[i]);

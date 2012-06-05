@@ -51,8 +51,12 @@ var tracks = (function() {
      * @param HTMLElement el The HTML media element
      */
     var Track = (function() {
-        function Track(el) {
+        function Track(el, preload) {
+            preload = preload || true;
             this.el = el;
+            if (preload) {
+                this.preload();
+            }
             return this;
         }
 
@@ -117,6 +121,15 @@ var tracks = (function() {
             });
         };
 
+        /**
+         * Preloads the sound.
+         *
+         * @return Track The current object
+         */
+        Track.prototype.preload = function() {
+            this.attr('preload', 'all');
+        }
+
         return Track;
     })();
 
@@ -150,7 +163,10 @@ var tracks = (function() {
             this.currentTime = 0;
             this.tracks = new Array();
             this.each(els, function(el) {
-                this.addTrack(new Track(el));
+                this.addTrack(new Track(el, false));
+            });
+            this.applyAll(function() {
+                this.preload();
             });
             this._initEvents();
             return this;
