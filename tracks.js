@@ -77,15 +77,31 @@ var tracks = (function() {
         };
 
         /**
-         * Sets the volume.
+         * Gets the position as average.
          *
-         * @param integer volume The volume (0 - 100)
-         * @return Track
+         * @param integer decimal The decimal
+         * @return float
          */
-        Track.prototype.setVolume = function(volume) {
-            this.volume = parseFloat(volume);
-            this.el.volume = this.volume / 100;
-            return this;
+        Track.prototype.getAverage = function(decimal) {
+            return tracks.toAverage(this.attr('currentTime'), this.duration, decimal);
+        };
+
+        /**
+         * Returns duration as a human readable string.
+         *
+         * @return string
+         */
+        Track.prototype.getHumanizedDuration = function(withHours) {
+            return tracks.humanizeTime(this.attr('duration'), withHours);
+        };
+
+        /**
+         * Returns time as a human readable string.
+         *
+         * @return string
+         */
+        Track.prototype.getHumanizedTime = function(withHours) {
+            return tracks.humanizeTime(this.attr('currentTime'), withHours);
         };
 
         /**
@@ -132,6 +148,19 @@ var tracks = (function() {
             });
             return this;
         };
+
+        /**
+         * Sets the volume.
+         *
+         * @param integer volume The volume (0 - 100)
+         * @return Track
+         */
+        Track.prototype.setVolume = function(volume) {
+            this.volume = parseFloat(volume);
+            this.el.volume = this.volume / 100;
+            return this;
+        };
+
 
         return Track;
     })();
