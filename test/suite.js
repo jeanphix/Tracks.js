@@ -129,19 +129,18 @@ suite('tracks', function() {
     });
 
     suite('Tracks', function() {
-        var els, t;
+        var els, t, seagull, craw;
 
         setup(function(done) {
-            els = [
-                helpers.audio([
-                    helpers.source('sounds/craw.ogg', 'audio/ogg'),
-                    helpers.source('sounds/craw.mp3', 'audio/mp3')
-                ]),
-                helpers.audio([
-                    helpers.source('sounds/seagull.ogg', 'audio/ogg'),
-                    helpers.source('sounds/seagull.mp3', 'audio/mp3')
-                ])
-            ];
+            seagull = helpers.audio([
+                helpers.source('sounds/seagull.ogg', 'audio/ogg'),
+                helpers.source('sounds/seagull.mp3', 'audio/mp3')
+            ]);
+            craw = helpers.audio([
+                helpers.source('sounds/craw.ogg', 'audio/ogg'),
+                helpers.source('sounds/craw.mp3', 'audio/mp3')
+            ]),
+            els = [seagull, craw];
             t = new tracks.Tracks(els);
             done();
         });
@@ -164,6 +163,22 @@ suite('tracks', function() {
             });
             test('canplaythrough should be fired up', function(done) {
                 t.on('canplaythrough', function() {
+                    done();
+                });
+            });
+        });
+
+        suite('#longest', function() {
+            test('should be sets when loadedmetadata', function(done) {
+                expect(t.longest).to.be(null);
+                t.on('loadedmetadata', function() {
+                    expect(t.longest).not.to.be(null);
+                    done();
+                });
+            });
+            test('should be the longest track', function(done) {
+                t.on('loadedmetadata', function() {
+                    expect(t.longest.el).to.be(seagull)
                     done();
                 });
             });
