@@ -355,6 +355,7 @@ var tracks = (function() {
             this._el.addEventListener(type, function(e) {
                  fn.apply(_this, [e]);
             });
+            return this;
         };
 
         /**
