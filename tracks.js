@@ -2,6 +2,19 @@ var tracks = (function() {
     var tracks = {};
 
     /**
+     * Returns value from average.
+     *
+     * @param float average The average
+     * @param float total The max value
+     * @param integer precision The precision
+     * @return float The value
+     */
+    tracks.fromAverage = function(average, total, precision) {
+        var r = Math.pow( 10, precision || 0 );
+        return  Math.round( ( ( total / 100 ) * average ) * r ) / r;
+    };
+
+    /**
      * Returns time as a human readable string.
      *
      * @param integer time The time to convert
@@ -33,22 +46,10 @@ var tracks = (function() {
     };
 
     /**
-     * Returns value from average.
-     *
-     * @param float average The average
-     * @param float total The max value
-     * @param integer precision The precision
-     * @return float The value
-     */
-    tracks.fromAverage = function(average, total, precision) {
-        var r = Math.pow( 10, precision || 0 );
-        return  Math.round( ( ( total / 100 ) * average ) * r ) / r;
-    };
-
-    /**
      * Represents a media (audio / video) track.
      *
      * @param HTMLElement el The HTML media element
+     * @param Boolean preload A optional boolean to force preload
      */
     var Track = (function() {
         function Track(el, preload) {
@@ -88,6 +89,16 @@ var tracks = (function() {
         };
 
         /**
+         * Stops playing the media.
+         *
+         * @return Track
+         */
+        Track.prototype.pause = function() {
+            this.el.pause();
+            return this;
+        };
+
+        /**
          * Starts playing the media.
          *
          * @return Track
@@ -98,14 +109,14 @@ var tracks = (function() {
         };
 
         /**
-         * Stops playing the media.
+         * Preloads the sound.
          *
-         * @return Track
+         * @return Track The current object
          */
-        Track.prototype.pause = function() {
-            this.el.pause();
+        Track.prototype.preload = function() {
+            this.attr('preload', 'all');
             return this;
-        };
+        }
 
         /**
          * Adds listener for given event.
@@ -119,16 +130,8 @@ var tracks = (function() {
             this.el.addEventListener(handler, function(e) {
                 fn.apply(bind, [e]);
             });
+            return this;
         };
-
-        /**
-         * Preloads the sound.
-         *
-         * @return Track The current object
-         */
-        Track.prototype.preload = function() {
-            this.attr('preload', 'all');
-        }
 
         return Track;
     })();
@@ -139,6 +142,7 @@ var tracks = (function() {
      * Represents a media group.
      *
      * @param Array els An array of HTML media elements
+     * @param Boolean preload A optional boolean to force preload
      */
     var Tracks = (function() {
         var states = {
@@ -156,7 +160,7 @@ var tracks = (function() {
             canplaythrough: states.HAVE_ENOUGH_DATA
         };
 
-        function Tracks(els) {
+        function Tracks(els, preload) {
             this._el = document.createElement('div');
             this.longest = null;
             this.duration = null;
@@ -165,12 +169,186 @@ var tracks = (function() {
             this.each(els, function(el) {
                 this.addTrack(new Track(el, false));
             });
+            this._initEvents();
+            preload = preload || true;
+            if (preload) {
+                this.preload
+            }
+            return this;
+        }
+
+        /**
+         * Adds a Track.
+         *
+         * @param Track track The track
+         */
+        Tracks.prototype.addTrack = function(track) {
+            this._initTrackStateEvents(track);
+            this.tracks.push(track);
+            return this;
+        };
+
+        /**
+         * Applies a callble to all tracks.
+         *
+         * @param callable fn The callbale to apply
+         * @param args Array The arguments
+         * @return tracks
+         */
+        Tracks.prototype.applyAll = function(fn, args) {
+            this.each(this.tracks, function(track) {
+                fn.apply(track, args);
+            });
+            return this;
+        };
+
+        /**
+         * Cheks if tracks can be played.
+         *
+         * @return boolean
+         */
+        Tracks.prototype.canPlay = function() {
+            return (this.getReadyState() >= states.HAVE_FUTURE_DATA);
+        };
+
+        /**
+         * Iterates over objects and arrays.
+         *
+         * @param object/Array array The object to iterate on
+         * @param callable fn The iteration
+         */
+        Tracks.prototype.each = function(array, fn) {
+            if (typeof(array.length) == 'undefined') {
+                for (var attr in array) {
+                    fn.apply(this, [array[attr], attr]);
+                }
+            } else {
+                for (var i = 0, l = array.length; i < l; i++) {
+                    fn.apply(this, [array[i], i]);
+                }
+            }
+        };
+
+        /**
+         * Gets the position as average.
+         *
+         * @param integer decimal The decimal
+         * @return float
+         */
+        Tracks.prototype.getAverage = function(decimal) {
+            return tracks.toAverage(this.currentTime, this.duration, decimal);
+        };
+
+        /**
+         * Returns duration as a human readable string.
+         *
+         * @return string
+         */
+        Tracks.prototype.getHumanizedDuration = function(withHours) {
+            return tracks.humanizeTime(this.duration, withHours);
+        };
+
+        /**
+         * Returns time as a human readable string.
+         *
+         * @return string
+         */
+        Tracks.prototype.getHumanizedTime = function(withHours) {
+            return tracks.humanizeTime(this.currentTime, withHours);
+        };
+
+        /**
+         * Gets the ready state.
+         *
+         * @return integer
+         */
+        Tracks.prototype.getReadyState = function() {
+            var state = states.HAVE_ENOUGH_DATA;
+            this.each(this.tracks, function(track) {
+                state = (track.attr('readyState') < state) ? track.attr('readyState') : state;
+            });
+            return state;
+        };
+
+        /**
+         * Adds a listener for given event.
+         *
+         * @param string type The event type
+         * @param callable fn The Callable
+         */
+        Tracks.prototype.on = function(type, fn) {
+            var _this = this;
+            this._el.addEventListener(type, function(e) {
+                 fn.apply(_this, [e]);
+            });
+            return this;
+        };
+
+        /**
+         * Stops playing the tracks.
+         *
+         * @return tracks
+         */
+        Tracks.prototype.pause = function() {
+            this.applyAll(function() {
+                this.pause();
+            });
+            return this;
+        };
+
+        /**
+         * Starts playing the tracks.
+         *
+         * @return Tracks
+         */
+        Tracks.prototype.play = function() {
+            if (this.canPlay()) {
+                this.setTime(this.currentTime);
+                this.applyAll(function() {
+                    this.play();
+                });
+                return this;
+            } else {
+                return false;
+            }
+        };
+
+        /**
+         * Preloads all tracks.
+         *
+         * @return Track The current object
+         */
+        Tracks.prototype.preload = function() {
             this.applyAll(function() {
                 this.preload();
             });
-            this._initEvents();
             return this;
         }
+
+        /**
+         * Sets player position.
+         *
+         * @param integer time The time
+         * @return Tracks
+         */
+        Tracks.prototype.setTime = function(time) {
+            this.currentTime = time;
+            this.applyAll(function() {
+                this.time = time;
+            });
+            return this;
+        };
+
+        /**
+         * Triggers an event.
+         *
+         * @param string type The event type
+         */
+        Tracks.prototype.trigger = function(type) {
+            var e = document.createEvent('HTMLEvents');
+            e.initEvent( type, false, true );
+            this._el.dispatchEvent(e);
+        };
 
         /**
          * Sets the longest track and duration when metadatas have been loaded.
@@ -211,17 +389,6 @@ var tracks = (function() {
         };
 
         /**
-         * Adds a Track.
-         *
-         * @param Track track The track
-         */
-        Tracks.prototype.addTrack = function(track) {
-            this._initTrackStateEvents(track);
-            this.tracks.push(track);
-            return this;
-        };
-
-        /**
          * Initializes the state change events.
          */
         Tracks.prototype._initTrackStateEvents = function(track) {
@@ -233,156 +400,6 @@ var tracks = (function() {
                     }
                 });
             });
-        };
-
-        /**
-         * Iterates over objects and arrays.
-         *
-         * @param object/Array array The object to iterate on
-         * @param callable fn The iteration
-         */
-        Tracks.prototype.each = function(array, fn) {
-            if (typeof(array.length) == 'undefined') {
-                for (var attr in array) {
-                    fn.apply(this, [array[attr], attr]);
-                }
-            } else {
-                for (var i = 0, l = array.length; i < l; i++) {
-                    fn.apply(this, [array[i], i]);
-                }
-            }
-        };
-
-        /**
-         * Gets the position as average.
-         *
-         * @param integer decimal The decimal
-         * @return float
-         */
-        Tracks.prototype.getAverage = function(decimal) {
-            return tracks.toAverage(this.currentTime, this.duration, decimal);
-        };
-
-        /**
-         * Returns time as a human readable string.
-         *
-         * @return string
-         */
-        Tracks.prototype.getHumanizedTime = function(withHours) {
-            return tracks.humanizeTime(this.currentTime, withHours);
-        };
-
-        /**
-         * Returns duration as a human readable string.
-         *
-         * @return string
-         */
-        Tracks.prototype.getHumanizedDuration = function(withHours) {
-            return tracks.humanizeTime(this.duration, withHours);
-        };
-
-        /**
-         * Gets the ready state.
-         *
-         * @return integer
-         */
-        Tracks.prototype.getReadyState = function() {
-            var state = states.HAVE_ENOUGH_DATA;
-            this.each(this.tracks, function(track) {
-                state = (track.attr('readyState') < state) ? track.attr('readyState') : state;
-            });
-            return state;
-        };
-
-        /**
-         * Cheks if tracks can be played.
-         *
-         * @return boolean
-         */
-        Tracks.prototype.canPlay = function() {
-            return (this.getReadyState() >= states.HAVE_FUTURE_DATA);
-        };
-
-        /**
-         * Starts playing the tracks.
-         *
-         * @return Tracks
-         */
-        Tracks.prototype.play = function() {
-            if (this.canPlay()) {
-                this.setTime(this.currentTime);
-                this.applyAll(function() {
-                    this.play();
-                });
-                return this;
-            } else {
-                return false;
-            }
-        };
-
-        /**
-         * Stops playing the tracks.
-         *
-         * @return tracks
-         */
-        Tracks.prototype.pause = function() {
-            this.applyAll(function() {
-                this.pause();
-            });
-            return this;
-        };
-
-        /**
-         * Sets player position.
-         *
-         * @param integer time The time
-         * @return Tracks
-         */
-        Tracks.prototype.setTime = function(time) {
-            this.currentTime = time;
-            this.applyAll(function() {
-                this.time = time;
-            });
-            return this;
-        };
-
-        /**
-         * Applies a callble to all tracks.
-         *
-         * @param callable fn The callbale to apply
-         * @param args Array The arguments
-         * @return tracks
-         */
-        Tracks.prototype.applyAll = function(fn, args) {
-            this.each(this.tracks, function(track) {
-                fn.apply(track, args);
-            });
-            return this;
-        };
-
-        /**
-         * Adds a listener for given event.
-         *
-         * @param string type The event type
-         * @param callable fn The Callable
-         */
-        Tracks.prototype.on = function(type, fn) {
-            var _this = this;
-            this._el.addEventListener(type, function(e) {
-                 fn.apply(_this, [e]);
-            });
-            return this;
-        };
-
-        /**
-         * Triggers an event.
-         *
-         * @param string type The event type
-         */
-        Tracks.prototype.trigger = function(type) {
-            var e = document.createEvent('HTMLEvents');
-            e.initEvent( type, false, true );
-            this._el.dispatchEvent(e);
         };
 
         return Tracks;
