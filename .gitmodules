@@ -4,3 +4,6 @@
 [submodule "test/expect"]
 	path = test/expect
 	url = https://github.com/LearnBoost/expect.js.git
+[submodule "test/casperjs"]
+	path = test/casperjs
+	url = https://github.com/n1k0/casperjs.git

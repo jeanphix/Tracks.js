@@ -1,3 +1,6 @@
+mocha.setup('tdd')
+
+
 var helpers = (function() {
     var helpers = {};
 
@@ -23,7 +26,7 @@ var helpers = (function() {
 })();
 
 
-suite('tracks', function() {
+var tracksSuite = suite('tracks', function() {
     suite('#humanizeTime()', function() {
         test('should return a 4 digit fomated string', function() {
             expect(tracks.humanizeTime(184)).to.be("03:04");
@@ -190,3 +193,17 @@ suite('tracks', function() {
         });
     });
 });
+
+// Sets the runner and runned tests as globals that can be accessed by casper.
+var __mocha_tests__ = [];
+var __mocha_runner__;
+
+document.addEventListener("DOMContentLoaded", function() {
+    __mocha_runner__ = mocha.run().globals([
+        'create',
+        'ClientUtils',
+        '__utils__'
+    ]).on('test end', function(test) {
+        __mocha_tests__.push({title: test.title, state: test.state});
+    });
+}, false);
