@@ -8,7 +8,7 @@ casper.waitFor(function isMochaRunning () {
        return __mocha_runner__ !==null;
     });
 }, function then() {
-    var total = parseInt(this.evaluate(function() { return __mocha_runner__.total; }));  // Total test to be run.
+    var total = parseInt(this.evaluate(function() { return __mocha_runner__.total; }));  // Total tests to be run.
     var next = 0;  // Last reported test.
 
     while (next <= total) {
