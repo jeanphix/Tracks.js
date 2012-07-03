@@ -194,7 +194,7 @@ var tracksSuite = suite('tracks', function() {
     });
 });
 
-// Sets the runner and runned tests as globals that can be accessed by casper.
+// Sets the runner and run tests as globals that can be accessed by casper.
 var __mocha_tests__ = [];
 var __mocha_runner__;
 
