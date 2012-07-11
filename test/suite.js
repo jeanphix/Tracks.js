@@ -2,6 +2,7 @@ mocha.setup('tdd');
 
 
 var helpers = (function () {
+    "use strict";
     var helpers = {};
 
     helpers.source = function (src, type) {
