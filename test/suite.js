@@ -200,10 +200,7 @@ var __mocha_tests__ = [];
 var __mocha_runner__;
 
 document.addEventListener("DOMContentLoaded", function () {
-    __mocha_runner__ = mocha.run().globals([
-        'create',
-        'ClientUtils',
-        '__utils__'
+        __mocha_runner__ = mocha.run().globals([
     ]).on('test end', function (test) {
         __mocha_tests__.push({title: test.title, state: test.state});
     });
