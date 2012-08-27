@@ -195,7 +195,7 @@ suite('tracks', function () {
     });
 });
 
-// Sets the runner and run tests as globals that can be accessed by casper.
+// Sets the runner and run tests as globals that can be accessed by Ghost.py.
 var __mocha_tests__ = [];
 var __mocha_runner__;
 
@@ -205,3 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         __mocha_tests__.push({title: test.title, state: test.state});
     });
 }, false);
+
+isMochaRunning = function () {
+    return __mocha_runner__ !== null;
+}
