@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-
 import nose
-
 from ghost import Ghost
 
 
@@ -13,7 +11,6 @@ def test_mocha():
     g.open('file://%s' % index)
     g.wait_for(lambda: g.evaluate('isMochaRunning()')[0], 10)
     total = int(g.evaluate('__mocha_runner__.total')[0])
-
     n = 0
     while n < total:
         g.wait_for(lambda: g.evaluate('__mocha_tests__.length > %s' % n)[0],
