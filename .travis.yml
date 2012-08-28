@@ -2,11 +2,11 @@ language: python
 python:
   - "2.7"
 install:
-  - sudo apt-get install jackd -y
+  - sudo apt-get install jackd2 -y
   - sudo apt-get install python-pyside
   - pip install nose
   - pip install git+git://github.com/jeanphix/Ghost.py.git#egg=ghost
-  - sudo jackd -d dummy&
+  - sudo jackd --silent -d dummy&
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
