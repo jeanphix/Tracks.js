@@ -1,6 +1,8 @@
 Tracks.js
 =========
 
+[![Build Status](https://secure.travis-ci.org/jeanphix/Tracks.js.png)](http://travis-ci.org/jeanphix/Tracks.js)
+
 A lightweight mutlitrack html media player.
 
     <audio preload="none">
