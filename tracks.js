@@ -69,7 +69,7 @@ var tracks = (function () {
          * @param string value The value
          */
         Track.prototype.attr = function (attr, val) {
-            if (val) {
+            if (arguments.length === 2) {
                 this.el[attr] = val;
                 return this;
             }
