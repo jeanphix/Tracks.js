@@ -204,6 +204,25 @@ suite('tracks', function () {
             });
         });
 
+        suite('#seek()', function () {
+            test('should jump to right time for given integer', function () {
+                t.on('canplaythrough', function () {
+                    t.seek(2);
+                    t.each(t.tracks, function (track) {
+                        expect(track.attr('currentTime')).to.be(2);
+                    });
+                });
+            });
+            test('should jump to right time for given float', function () {
+                t.on('canplaythrough', function () {
+                    t.seek(1.0234);
+                    t.each(t.tracks, function (track) {
+                        expect(Math.round(track.attr('currentTime') * 10000) / 10000).to.equal(1.0234);
+                    });
+                });
+            });
+        });
+
         teardown(function () {
             delete els, t;
         });
