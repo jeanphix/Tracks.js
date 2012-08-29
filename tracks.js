@@ -96,6 +96,20 @@ var tracks = (function () {
         };
 
         /**
+         * Returns the buffered time ranges as a bidimensional array
+         *
+         * @return Array
+         */
+        Track.prototype.getBufferedRanges = function () {
+            var timeRanges = this.attr('buffered');
+            var buffered = [];
+            for (var i = 0; i < timeRanges.length; i++) {
+                buffered.push([timeRanges.start(i), timeRanges.end(i)]);
+            }
+            return buffered;
+        };
+
+        /**
          * Returns time as a human readable string.
          *
          * @return string
