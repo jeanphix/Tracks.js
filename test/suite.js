@@ -117,6 +117,23 @@ suite('tracks', function () {
             });
         });
 
+        suite('#getHumanizedTime', function () {
+            test('should return the correct human readable time', function (done) {
+                t.on('canplaythrough', function () {
+                    t.seek(1);
+                    expect(t.getHumanizedTime()).to.equal('00:01')
+                    done();
+                });
+            });
+            test('should return the correct human readable time with hours', function (done) {
+                t.on('loadedmetadata', function () {
+                    t.seek(1);
+                    expect(t.getHumanizedTime(true)).to.equal('00:00:01')
+                    done();
+                });
+            });
+        });
+
         suite('#play()', function () {
             test('should be playable when ready', function (done) {
                 t.on('canplay', function () {
