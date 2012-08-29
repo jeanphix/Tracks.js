@@ -216,6 +216,16 @@ suite('tracks', function () {
             done();
         });
 
+        suite('#getBufferedRanges()', function () {
+            test('should be full time range on canplay', function (done) {
+                t.on('canplaythrough', function () {
+                    var buffers = t.getBufferedRanges();
+                    expect(buffers[buffers.length - 1][1]).to.be(t.duration);
+                    done();
+                });
+            });
+        });
+
         suite('#on()', function () {
             test('loadedmetadata should be fired up', function (done) {
                 t.on('loadedmetadata', function () {
@@ -273,6 +283,30 @@ suite('tracks', function () {
                     });
                     done();
                 });
+            });
+        });
+
+        suite('#_intersectRanges()', function () {
+            test('should return an empty array for two non intersectable array', function () {
+                var a = [[10, 20]], b = [[30, 42]];
+                expect(t._intersectRanges(a, b)).to.have.length(0);
+            });
+            test('should return intersection of two arrays', function () {
+                var a = [[10, 20]], b = [[13, 22]];
+                var intersection = t._intersectRanges(a, b);
+                expect(intersection).to.have.length(1);
+                var range = intersection[0];
+                expect(range[0]).to.be(13);
+                expect(range[1]).to.be(20);
+            });
+            test('should return intersection of three arrays', function () {
+                var a = [[10, 20], [25, 40]], b = [[13, 32]];
+                var intersection = t._intersectRanges(a, b);
+                expect(intersection).to.have.length(2);
+                expect(intersection[0][0]).to.be(13);
+                expect(intersection[0][1]).to.be(20);
+                expect(intersection[1][0]).to.be(25);
+                expect(intersection[1][1]).to.be(32);
             });
         });
 

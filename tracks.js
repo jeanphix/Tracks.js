@@ -295,6 +295,25 @@ var tracks = (function () {
         };
 
         /**
+         * Returns buffered time ranges as a bidimensional array.
+         *
+         * @return Array
+         */
+        Tracks.prototype.getBufferedRanges = function () {
+            var ranges = [[0, this.duration]];
+            if (this.tracks.length > 0) {
+                this.each(this.tracks, function (track) {
+                    var trackRanges =  track.getBufferedRanges();
+                    if (track.attr('duration') !== this.duration) {
+                        trackRanges.push([track.attr('duration'), this.duration]);
+                    }
+                    ranges = this._intersectRanges(ranges, trackRanges)
+                });
+            }
+            return ranges;
+        };
+
+        /**
          * Returns duration as a human readable string.
          *
          * @return string
@@ -456,6 +475,27 @@ var tracks = (function () {
                     }
                 });
             });
+        };
+
+        /**
+         * Returns the intersections beetween two bidimensional range arrays.
+         *
+         * Assumed that ranges in arrays doesn't intersect themselves.
+         *
+         * @return Array
+         */
+        Tracks.prototype._intersectRanges = function (a, b, max) {
+            var ranges = [];
+            this.each(a, function (aRange) {
+                this.each(b, function (bRange) {
+                    if (!(bRange[0] > aRange[1] || bRange[1] < aRange[0])) {
+                        var start = aRange[0] > bRange[0] ? aRange[0] : bRange[0];
+                        var end = aRange[1] < bRange[1] ? aRange[1] : bRange[1];
+                        ranges.push([start, end]);
+                    }
+                });
+            });
+            return ranges;
         };
 
         return Tracks;
