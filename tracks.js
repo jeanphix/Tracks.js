@@ -130,7 +130,7 @@ var tracks = (function () {
          * @return Track The current object
          */
         Track.prototype.preload = function () {
-            this.attr('preload', 'all');
+            this.attr('preload', 'auto');
             return this;
         };
 
