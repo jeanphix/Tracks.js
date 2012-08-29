@@ -150,6 +150,17 @@ var tracks = (function () {
         };
 
         /**
+         * Jumps to given time.
+         *
+         * @param float time The new time in second.
+         * @return Track The current object
+         */
+        Track.prototype.seek = function (time) {
+            this.attr('currentTime', time);
+            return this;
+        };
+
+        /**
          * Sets the volume.
          *
          * @param integer volume The volume (0 - 100)
