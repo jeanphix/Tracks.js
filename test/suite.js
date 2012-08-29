@@ -86,10 +86,17 @@ suite('tracks', function () {
         });
 
         suite('#getAverage()', function () {
-            test('should return the correct average', function (done) {
+            test('should return the correct integer average', function (done) {
                 t.on('canplaythrough', function () {
                     t.seek(1.2);
                     expect(t.getAverage()).to.equal(40);
+                    done();
+                });
+            });
+            test('should return the correct decimal average', function (done) {
+                t.on('canplaythrough', function () {
+                    t.seek(1.2);
+                    expect(t.getAverage(2)).to.equal(40.02);
                     done();
                 });
             });
