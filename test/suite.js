@@ -85,6 +85,16 @@ suite('tracks', function () {
             });
         });
 
+        suite('#getAverage()', function () {
+            test('should return the correct average', function (done) {
+                t.on('canplaythrough', function () {
+                    t.seek(1.2);
+                    expect(t.getAverage()).to.equal(40);
+                    done();
+                });
+            });
+        });
+
         suite('#play()', function () {
             test('should be playable when ready', function (done) {
                 t.on('canplay', function () {

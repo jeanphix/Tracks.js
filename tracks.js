@@ -83,7 +83,7 @@ var tracks = (function () {
          * @return float
          */
         Track.prototype.getAverage = function (decimal) {
-            return tracks.toAverage(this.attr('currentTime'), this.duration, decimal);
+            return tracks.toAverage(this.attr('currentTime'), this.attr('duration'), decimal);
         };
 
         /**
