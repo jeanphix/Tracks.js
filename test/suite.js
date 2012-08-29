@@ -287,8 +287,7 @@ var __mocha_tests__ = [];
 var __mocha_runner__;
 
 document.addEventListener("DOMContentLoaded", function () {
-        __mocha_runner__ = mocha.run().globals([
-    ]).on('test end', function (test) {
+     __mocha_runner__ = mocha.run().globals(['stats', 'report']).on('test end', function (test) {
         __mocha_tests__.push({title: test.title, state: test.state});
     });
 }, false);
