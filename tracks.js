@@ -344,7 +344,7 @@ var tracks = (function () {
          */
         Tracks.prototype.play = function () {
             if (this.canPlay()) {
-                this.setTime(this.currentTime);
+                this.seek(this.currentTime);
                 this.applyAll(function () {
                     this.play();
                 });
@@ -367,15 +367,15 @@ var tracks = (function () {
         };
 
         /**
-         * Sets player position.
+         * Jumps to given time.
          *
-         * @param integer time The time
+         * @param float time The new time in second.
          * @return Tracks
          */
-        Tracks.prototype.setTime = function (time) {
+        Tracks.prototype.seek = function (time) {
             this.currentTime = time;
             this.applyAll(function () {
-                this.time = time;
+                this.seek(time);
             });
             return this;
         };
