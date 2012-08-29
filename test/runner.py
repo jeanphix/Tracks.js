@@ -17,10 +17,11 @@ def test_mocha():
     while n < total:
         g.wait_for(lambda: g.evaluate('__mocha_tests__.length > %s' % n)[0],
             10)
+        title = g.evaluate('__mocha_tests__[%s].title' % n)[0]
         state = g.evaluate('__mocha_tests__[%s].state' % n)[0]
-        yield check_state, state
+        yield check_state, title, state
         n += 1
 
 
-def check_state(state):
+def check_state(title, state):
     assert state == 'passed'
