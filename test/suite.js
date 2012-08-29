@@ -102,6 +102,21 @@ suite('tracks', function () {
             });
         });
 
+        suite('#getHumanizedDuration', function () {
+            test('should return the correct human readable duration', function (done) {
+                t.on('loadedmetadata', function () {
+                    expect(t.getHumanizedDuration()).to.equal('00:02')
+                    done();
+                });
+            });
+            test('should return the correct human readable duration with hours', function (done) {
+                t.on('loadedmetadata', function () {
+                    expect(t.getHumanizedDuration(true)).to.equal('00:00:02')
+                    done();
+                });
+            });
+        });
+
         suite('#play()', function () {
             test('should be playable when ready', function (done) {
                 t.on('canplay', function () {
