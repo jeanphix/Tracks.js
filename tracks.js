@@ -1,4 +1,5 @@
-var tracks = (function() {
+var tracks = (function () {
+    "use strict";
     var tracks = {};
 
     /**
@@ -9,9 +10,9 @@ var tracks = (function() {
      * @param integer precision The precision
      * @return float The value
      */
-    tracks.fromAverage = function(average, total, precision) {
-        var r = Math.pow( 10, precision || 0 );
-        return  Math.round( ( ( total / 100 ) * average ) * r ) / r;
+    tracks.fromAverage = function (average, total, precision) {
+        var r = Math.pow(10, precision || 0);
+        return Math.round(((total / 100) * average) * r) / r;
     };
 
     /**
@@ -21,14 +22,14 @@ var tracks = (function() {
      * @param boolean withHours Should add hours to output
      * @return string The time string
      */
-    tracks.humanizeTime = function(time, withHours) {
+    tracks.humanizeTime = function (time, withHours) {
         var h, m, s;
-        h = Math.floor( time / 3600 );
-        h = isNaN( h ) ? '--' : ( h >= 10 ) ? h : '0' + h;
-        m = withHours ? Math.floor( time / 60 % 60 ) : Math.floor( time / 60 );
-        m = isNaN( m ) ? '--' : ( m >= 10 ) ? m : '0' + m;
-        s = Math.floor( time % 60 );
-        s = isNaN( s ) ? '--' : ( s >= 10 ) ? s : '0' + s;
+        h = Math.floor(time / 3600);
+        h = isNaN(h) ? '--' : (h >= 10) ? h : '0' + h;
+        m = withHours ? Math.floor(time / 60 % 60) : Math.floor(time / 60);
+        m = isNaN(m) ? '--' : (m >= 10) ? m : '0' + m;
+        s = Math.floor(time % 60);
+        s = isNaN(s) ? '--' : (s >= 10) ? s : '0' + s;
         return withHours ? h + ':' + m + ':' + s : m + ':' + s;
     };
 
@@ -40,9 +41,9 @@ var tracks = (function() {
      * @param integer precision The precision
      * @return integer The average
      */
-    tracks.toAverage = function(value, total, precision) {
-        var r = Math.pow( 10, precision || 0 );
-        return Math.round( ( ( value * 100 ) / total ) * r ) / r;
+    tracks.toAverage = function (value, total, precision) {
+        var r = Math.pow(10, precision || 0);
+        return Math.round(((value * 100) / total) * r) / r;
     };
 
     /**
@@ -51,7 +52,7 @@ var tracks = (function() {
      * @param HTMLElement el The HTML media element
      * @param Boolean preload A optional boolean to force preload
      */
-    var Track = (function() {
+    var Track = (function () {
         function Track(el, preload) {
             preload = preload || true;
             this.el = el;
@@ -67,13 +68,12 @@ var tracks = (function() {
          * @param string attr The attribute name
          * @param string value The value
          */
-        Track.prototype.attr = function(attr, val) {
+        Track.prototype.attr = function (attr, val) {
             if (val) {
                 this.el[attr] = val;
                 return this;
-            } else {
-                return this.el[attr];
             }
+            return this.el[attr];
         };
 
         /**
@@ -82,7 +82,7 @@ var tracks = (function() {
          * @param integer decimal The decimal
          * @return float
          */
-        Track.prototype.getAverage = function(decimal) {
+        Track.prototype.getAverage = function (decimal) {
             return tracks.toAverage(this.attr('currentTime'), this.duration, decimal);
         };
 
@@ -91,7 +91,7 @@ var tracks = (function() {
          *
          * @return string
          */
-        Track.prototype.getHumanizedDuration = function(withHours) {
+        Track.prototype.getHumanizedDuration = function (withHours) {
             return tracks.humanizeTime(this.attr('duration'), withHours);
         };
 
@@ -100,7 +100,7 @@ var tracks = (function() {
          *
          * @return string
          */
-        Track.prototype.getHumanizedTime = function(withHours) {
+        Track.prototype.getHumanizedTime = function (withHours) {
             return tracks.humanizeTime(this.attr('currentTime'), withHours);
         };
 
@@ -109,7 +109,7 @@ var tracks = (function() {
          *
          * @return Track
          */
-        Track.prototype.pause = function() {
+        Track.prototype.pause = function () {
             this.el.pause();
             return this;
         };
@@ -119,7 +119,7 @@ var tracks = (function() {
          *
          * @return Track
          */
-        Track.prototype.play = function() {
+        Track.prototype.play = function () {
             this.el.play();
             return this;
         };
@@ -129,10 +129,10 @@ var tracks = (function() {
          *
          * @return Track The current object
          */
-        Track.prototype.preload = function() {
+        Track.prototype.preload = function () {
             this.attr('preload', 'all');
             return this;
-        }
+        };
 
         /**
          * Adds listener for given event.
@@ -141,9 +141,9 @@ var tracks = (function() {
          * @param callable fn The callback
          * @param object bind The object to bind
          */
-        Track.prototype.on = function(handler, fn, bind) {
-            var bind = bind ? bind : this;
-            this.el.addEventListener(handler, function(e) {
+        Track.prototype.on = function (handler, fn, bind) {
+            var bind = bind || this;
+            this.el.addEventListener(handler, function (e) {
                 fn.apply(bind, [e]);
             });
             return this;
@@ -155,7 +155,7 @@ var tracks = (function() {
          * @param integer volume The volume (0 - 100)
          * @return Track
          */
-        Track.prototype.setVolume = function(volume) {
+        Track.prototype.setVolume = function (volume) {
             this.volume = parseFloat(volume);
             this.el.volume = this.volume / 100;
             return this;
@@ -173,7 +173,7 @@ var tracks = (function() {
      * @param Array els An array of HTML media elements
      * @param Boolean preload A optional boolean to force preload
      */
-    var Tracks = (function() {
+    var Tracks = (function () {
         var states = {
             HAVE_NOTHING: 0,
             HAVE_METADATA: 1,
@@ -194,14 +194,14 @@ var tracks = (function() {
             this.longest = null;
             this.duration = null;
             this.currentTime = 0;
-            this.tracks = new Array();
-            this.each(els, function(el) {
+            this.tracks = [];
+            this.each(els, function (el) {
                 this.addTrack(new Track(el, false));
             });
             this._initEvents();
             preload = preload || true;
             if (preload) {
-                this.preload
+                this.preload();
             }
             return this;
         }
@@ -211,7 +211,7 @@ var tracks = (function() {
          *
          * @param Track track The track
          */
-        Tracks.prototype.addTrack = function(track) {
+        Tracks.prototype.addTrack = function (track) {
             this._initTrackStateEvents(track);
             this.tracks.push(track);
             return this;
@@ -224,8 +224,8 @@ var tracks = (function() {
          * @param args Array The arguments
          * @return tracks
          */
-        Tracks.prototype.applyAll = function(fn, args) {
-            this.each(this.tracks, function(track) {
+        Tracks.prototype.applyAll = function (fn, args) {
+            this.each(this.tracks, function (track) {
                 fn.apply(track, args);
             });
             return this;
@@ -236,7 +236,7 @@ var tracks = (function() {
          *
          * @return boolean
          */
-        Tracks.prototype.canPlay = function() {
+        Tracks.prototype.canPlay = function () {
             return (this.getReadyState() >= states.HAVE_FUTURE_DATA);
         };
 
@@ -246,8 +246,8 @@ var tracks = (function() {
          * @param object/Array array The object to iterate on
          * @param callable fn The iteration
          */
-        Tracks.prototype.each = function(array, fn) {
-            if (typeof(array.length) == 'undefined') {
+        Tracks.prototype.each = function (array, fn) {
+            if (typeof (array.length) === 'undefined') {
                 for (var attr in array) {
                     fn.apply(this, [array[attr], attr]);
                 }
@@ -265,7 +265,7 @@ var tracks = (function() {
          * @param integer decimal The decimal
          * @return float
          */
-        Tracks.prototype.getAverage = function(decimal) {
+        Tracks.prototype.getAverage = function (decimal) {
             return tracks.toAverage(this.currentTime, this.duration, decimal);
         };
 
@@ -274,7 +274,7 @@ var tracks = (function() {
          *
          * @return string
          */
-        Tracks.prototype.getHumanizedDuration = function(withHours) {
+        Tracks.prototype.getHumanizedDuration = function (withHours) {
             return tracks.humanizeTime(this.duration, withHours);
         };
 
@@ -283,7 +283,7 @@ var tracks = (function() {
          *
          * @return string
          */
-        Tracks.prototype.getHumanizedTime = function(withHours) {
+        Tracks.prototype.getHumanizedTime = function (withHours) {
             return tracks.humanizeTime(this.currentTime, withHours);
         };
 
@@ -292,9 +292,9 @@ var tracks = (function() {
          *
          * @return integer
          */
-        Tracks.prototype.getReadyState = function() {
+        Tracks.prototype.getReadyState = function () {
             var state = states.HAVE_ENOUGH_DATA;
-            this.each(this.tracks, function(track) {
+            this.each(this.tracks, function (track) {
                 state = (track.attr('readyState') < state) ? track.attr('readyState') : state;
             });
             return state;
@@ -306,9 +306,9 @@ var tracks = (function() {
          * @param string type The event type
          * @param callable fn The Callable
          */
-        Tracks.prototype.on = function(type, fn) {
+        Tracks.prototype.on = function (type, fn) {
             var _this = this;
-            this._el.addEventListener(type, function(e) {
+            this._el.addEventListener(type, function (e) {
                  fn.apply(_this, [e]);
             });
             return this;
@@ -319,8 +319,8 @@ var tracks = (function() {
          *
          * @return tracks
          */
-        Tracks.prototype.pause = function() {
-            this.applyAll(function() {
+        Tracks.prototype.pause = function () {
+            this.applyAll(function () {
                 this.pause();
             });
             return this;
@@ -331,10 +331,10 @@ var tracks = (function() {
          *
          * @return Tracks
          */
-        Tracks.prototype.play = function() {
+        Tracks.prototype.play = function () {
             if (this.canPlay()) {
                 this.setTime(this.currentTime);
-                this.applyAll(function() {
+                this.applyAll(function () {
                     this.play();
                 });
                 return this;
@@ -348,12 +348,12 @@ var tracks = (function() {
          *
          * @return Track The current object
          */
-        Tracks.prototype.preload = function() {
-            this.applyAll(function() {
+        Tracks.prototype.preload = function () {
+            this.applyAll(function () {
                 this.preload();
             });
             return this;
-        }
+        };
 
         /**
          * Sets player position.
@@ -361,9 +361,9 @@ var tracks = (function() {
          * @param integer time The time
          * @return Tracks
          */
-        Tracks.prototype.setTime = function(time) {
+        Tracks.prototype.setTime = function (time) {
             this.currentTime = time;
-            this.applyAll(function() {
+            this.applyAll(function () {
                 this.time = time;
             });
             return this;
@@ -374,9 +374,9 @@ var tracks = (function() {
          *
          * @param string type The event type
          */
-        Tracks.prototype.trigger = function(type) {
+        Tracks.prototype.trigger = function (type) {
             var e = document.createEvent('HTMLEvents');
-            e.initEvent( type, false, true );
+            e.initEvent(type, false, true);
             this._el.dispatchEvent(e);
             return this;
         };
@@ -384,9 +384,9 @@ var tracks = (function() {
         /**
          * Sets the longest track and duration when metadatas have been loaded.
          */
-        Tracks.prototype._init = function() {
+        Tracks.prototype._init = function () {
             this.longest = this.tracks[0];
-            this.each(this.tracks, function(track) {
+            this.each(this.tracks, function (track) {
                 if (this.longest.attr('duration') < track.attr('duration')) {
                     this.longest = track;
                 }
@@ -398,11 +398,11 @@ var tracks = (function() {
         /**
          * Initializes main event listeners.
          */
-        Tracks.prototype._initEvents = function() {
-            this.on('loadedmetadata', function() {
+        Tracks.prototype._initEvents = function () {
+            this.on('loadedmetadata', function () {
                 this._init();
             });
-            this.on('timeupdate', function() {
+            this.on('timeupdate', function () {
                 this.currentTime = this.longest.attr('currentTime');
             });
         };
@@ -410,10 +410,10 @@ var tracks = (function() {
         /**
          * Initializes time related events.
          */
-        Tracks.prototype._initTimeEvents = function() {
+        Tracks.prototype._initTimeEvents = function () {
             var events = ['timeupdate', 'ended', 'pause', 'play', 'playing'];
-            this.each(events, function(type) {
-                this.longest.on(type, function() {
+            this.each(events, function (type) {
+                this.longest.on(type, function () {
                     this.trigger(type);
                 }, this);
             });
@@ -422,10 +422,10 @@ var tracks = (function() {
         /**
          * Initializes the state change events.
          */
-        Tracks.prototype._initTrackStateEvents = function(track) {
-            this.each(stateEvents, function(status, type) {
+        Tracks.prototype._initTrackStateEvents = function (track) {
+            this.each(stateEvents, function (status, type) {
                 var _this = this;
-                track.on(type, function() {
+                track.on(type, function () {
                     if (_this.getReadyState() >= status) {
                         _this.trigger(type);
                     }
