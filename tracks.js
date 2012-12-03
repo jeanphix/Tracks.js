@@ -101,9 +101,10 @@ var tracks = (function () {
          * @return Array
          */
         Track.prototype.getBufferedRanges = function () {
-            var timeRanges = this.attr('buffered');
-            var buffered = [];
-            for (var i = 0; i < timeRanges.length; i++) {
+            var timeRanges = this.attr('buffered'),
+                buffered = [],
+                i;
+            for (i = 0; i < timeRanges.length; i++) {
                 buffered.push([timeRanges.start(i), timeRanges.end(i)]);
             }
             return buffered;
