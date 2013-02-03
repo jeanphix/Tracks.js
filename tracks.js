@@ -217,6 +217,19 @@ Track.prototype.setVolume = function (volume) {
 };
 
 
+/**
+ * Stops playing the media.
+ *
+ * @return Track
+ */
+Track.prototype.stop = function () {
+    "use strict";
+    this.el.pause();
+    this.seek(0);
+    return this;
+};
+
+
 tracks.Track = Track;
 
 
