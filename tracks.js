@@ -486,6 +486,24 @@ Tracks.prototype.seek = function (time) {
 };
 
 
+
+/**
+ * Stops playing the tracks.
+ *
+ * @return Tracks
+ */
+Tracks.prototype.stop = function () {
+    "use strict";
+    if (this.canPlay()) {
+        this.applyAll(function () {
+            this.stop();
+        });
+        return this;
+    } else {
+        return false;
+    }
+};
+
 /**
  * Triggers an event.
  *
