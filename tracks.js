@@ -486,7 +486,6 @@ Tracks.prototype.seek = function (time) {
 };
 
 
-
 /**
  * Stops playing the tracks.
  *
@@ -503,6 +502,7 @@ Tracks.prototype.stop = function () {
         return false;
     }
 };
+
 
 /**
  * Triggers an event.
